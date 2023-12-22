@@ -5,9 +5,10 @@ FROM tablename; */
 
 use sustainable_var
 select * from forest_area;
+drop table co2_melted;
 create table co2_melted as
 -- economy: year - indicator value
-select economy, 2010 as "year", yr2010 as indicator from co2_emissions
+select economy, 2010 as "year", yr2010 as co2_emissions from co2_emissions
 union all
 select economy, 2011 as "year", yr2011 as indicator from co2_emissions
 union all
@@ -29,9 +30,10 @@ select economy, 2019 as "year", yr2019 as indicator from co2_emissions
 union all
 select economy, 2020 as "year", yr2020 as indicator from co2_emissions;
 
+drop table nr_depletion_melted;
 create table nr_depletion_melted as
 -- economy: year - indicator value
-select economy, 2010 as "year", yr2010 as indicator from natural_resources_depletion
+select economy, 2010 as "year", yr2010 as natural_res_depletion from natural_resources_depletion
 union all
 select economy, 2011 as "year", yr2011 as indicator from natural_resources_depletion
 union all
@@ -53,9 +55,10 @@ select economy, 2019 as "year", yr2019 as indicator from natural_resources_deple
 union all
 select economy, 2020 as "year", yr2020 as indicator from natural_resources_depletion;
 
+drop table r_energy_melted;
 create table r_energy_melted as
 -- economy: year - indicator value
-select economy, 2010 as "year", yr2010 as indicator from renewable_energy_consumption
+select economy, 2010 as "year", yr2010 as ren_energy_consumption from renewable_energy_consumption
 union all
 select economy, 2011 as "year", yr2011 as indicator from renewable_energy_consumption
 union all
@@ -77,9 +80,11 @@ select economy, 2019 as "year", yr2019 as indicator from renewable_energy_consum
 union all
 select economy, 2020 as "year", yr2020 as indicator from renewable_energy_consumption;
 
+
+drop table water_depletion_melt;
 create table water_depletion_melt as
 -- economy: year - indicator value
-select economy, 2010 as "year", yr2010 as indicator from water_depletion
+select economy, 2010 as "year", yr2010 as water_depletion from water_depletion
 union all
 select economy, 2011 as "year", yr2011 as indicator from water_depletion
 union all
@@ -101,9 +106,11 @@ select economy, 2019 as "year", yr2019 as indicator from water_depletion
 union all
 select economy, 2020 as "year", yr2020 as indicator from water_depletion;
 
+
+drop table forest_area_melt;
 create table forest_area_melt as
 -- economy: year - indicator value
-select economy, 2010 as "year", yr2010 as indicator from forest_area
+select economy, 2010 as "year", yr2010 as forest_area from forest_area
 union all
 select economy, 2011 as "year", yr2011 as indicator from forest_area
 union all
@@ -124,4 +131,6 @@ union all
 select economy, 2019 as "year", yr2019 as indicator from forest_area
 union all
 select economy, 2020 as "year", yr2020 as indicator from forest_area;
+
+select * from forest_area_melt
 
