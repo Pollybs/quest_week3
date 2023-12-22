@@ -134,9 +134,9 @@ select economy, 2019 as "year", yr2019 as indicator from forest_area
 union all
 select economy, 2020 as "year", yr2020 as indicator from forest_area;
 
-select economy, year, forest_area,  LAG(forest_area) OVER (partition by economy ORDER BY year) as forest_area_evolution
+/*select economy, year, forest_area,  LAG(forest_area) OVER (partition by economy ORDER BY year) as forest_area_evolution
 from forest_area_melt
-order by economy;
+order by economy;*/
 
 /* SELECT column1, column2,
        LEAD(column3, 1) OVER (ORDER BY column4) AS next_value,
@@ -147,7 +147,7 @@ select * from forest_area_melt;
 
 drop table all_indicators_together;
 create table all_indicators_together as
-select co2.economy, co2.year,co2.co2_emissions, re.ren_energy_consumption, nr.natural_res_depletion, wd.water_depletion, fa.forest_area
+select co2.economy as economy, co2.year as year,co2.co2_emissions, re.ren_energy_consumption, nr.natural_res_depletion, wd.water_depletion, fa.forest_area
 from co2_melted co2
 inner join r_energy_melted re
 on co2.economy = re.economy
@@ -173,24 +173,31 @@ set natural_res_depletion = 0.561548668352516
 where economy = "GBR" 
 and year in (2019, 2020);
 
-/*select *, (forest_area -
+delete from all_indicators_together
+where economy = 'LBN';
+
+ select *, (forest_area -
 lag(forest_area) over (partition by economy order by year))/(lag(forest_area) over (partition by economy order by year)) as deforestation_rate
- from all_indicators_together;*/
+ from forest_area_melt;
 
-
-/*create table scaled_indicators
-select economy as country, year
-,(co2_emissions - min(co2_emissions) over())/(max() over() - min() over () ) as scaled_
-,(ren_energy_consumption)
-,(natural_res_depletion)
-,(water_depletion)
-,(forest_area)
-from all_indicators_together;
+drop table scaled_indicators;
 
 create table scaled_indicators
 select economy as country, year
-,(co2_emissions - min(co2_emissions) over ())/(max(co2_emissions) over() - min(co2_emissions) over () ) as scaled_co2_emissions
-from all_indicators_together;*/
+,1 - ((co2_emissions - min(co2_emissions) over ())/(max(co2_emissions) over() - min(co2_emissions) over () )) as scaled_co2_emissions
+,(ren_energy_consumption - min(ren_energy_consumption) over ())/(max(ren_energy_consumption) over() - min(ren_energy_consumption) over()) as scaled_ren_energy_consumption
+,1 -((natural_res_depletion - min(natural_res_depletion) over ())/(max(natural_res_depletion) over() - min(natural_res_depletion) over() )) as scaled_nat_res_depletion
+,1 -((water_depletion - min(water_depletion) over ())/(max(water_depletion) over() - min(water_depletion) over())) as scaled_water_depletion
+from all_indicators_together;
 
+select * from scaled_indicators;
 
+create table final as
+select ait.*, (scaled_co2_emissions + scaled_ren_energy_consumption + scaled_nat_res_depletion + scaled_water_depletion) / 4 as score_final
+from scaled_indicators s
+inner join all_indicators_together ait on s.country = ait.economy and s.year = ait.year;
+select * from final;
 
+select *
+from final
+where score_final = (select min(score_final) from final);
